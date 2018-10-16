@@ -1,40 +1,29 @@
 const Sequelize = require('sequelize');  //importa modulo sequelize
-var persistence= require('../persistence/sequelize.js')
+const persistence= require('../persistence/sequelize.js')
 
-
- 
-const User = persistence.mydb.define('utente', {
+let definition = {
   ID: {
     type: Sequelize.INTEGER,
     primaryKey: true
   },
   nome: {
     type: Sequelize.STRING
-      
-      
   },
   password: {
     type: Sequelize.STRING
-
-},
+  },
   ruolo: {
-      
     type: Sequelize.INTEGER
-
   }
-    
-    
-} 
-    , {
+};
+
+let props = {
   freezeTableName: true,
   createdAt: false,
   updatedAt: false
+};
 
-}                         
-    );
-    
-
-module.exports=User;
+module.exports=persistence.mydb.define('utente', definition , props);
 
 
 
