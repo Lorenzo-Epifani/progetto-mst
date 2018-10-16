@@ -1,0 +1,50 @@
+div.nav-wrapper{
+    
+    background-color: #aeea00;
+}
+
+
+nav div.nav-wrapper *{
+    
+    color: #9e9d24;
+    font-weight: 1000;
+}
+
+nav div a.brand-logo img {
+   
+    width: 2em;
+    height: 2em;
+    
+}
+
+div.card-image{
+    align-content: center;
+    
+    width: 20em;
+    height: 19em;
+}
+a.card-title{
+    
+    color: #9e9d24;
+}
+
+div.card{
+    background-color: #dcedc8;
+}
+
+i.material-icons {
+    
+    background-color:  #aeea00
+}
+div.card *{
+     color: #9e9d24;
+    font-weight: 1000;
+}
+div.title {
+    font-weight: 900;
+    align-content: center;
+}
+div.card {
+    width: 20em;
+    height: 25em;
+}
