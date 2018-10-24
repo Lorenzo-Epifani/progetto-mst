@@ -7,8 +7,10 @@ import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.min.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+
 Vue.use(VueMaterial);
 Vue.use(VueAxios, axios);
+
 
 
 

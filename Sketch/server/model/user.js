@@ -4,16 +4,19 @@ const persistence= require('../persistence/sequelize.js')
 let definition = {
   ID: {
     type: Sequelize.INTEGER,
-    primaryKey: true
+    primaryKey: true,
+     autoIncrement: true,
   },
   nome: {
-    type: Sequelize.STRING
+    type: Sequelize.STRING,
+    unique: true,
   },
   password: {
     type: Sequelize.STRING
   },
   ruolo: {
-    type: Sequelize.INTEGER
+    type: Sequelize.INTEGER,
+     defaultValue: '1'
   }
 };
 

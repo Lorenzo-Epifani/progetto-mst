@@ -1,15 +1,17 @@
 <template>
   <div id="app">
-    <navbar/>
-    <router-view/>
+    <respnav></respnav>
+    <router-view></router-view>
  </div>
 </template>
 
 <script>
-   import navbar from '@/components/navbar.vue'
+   import respnav from '@/components/nav.vue'
+   import cardlist from '@/components/cardlist.vue'
+
 export default {
   name: 'App',
-  components :{navbar},
+  components :{respnav, cardlist},
 }
  
 </script>
@@ -19,8 +21,9 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+ 
    
-  text-align: center;
+  text-align: left;
   color: #2c3e50;
 }
 </style>

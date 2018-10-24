@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
-import prova from '@/components/prova'
+import cardlist from '@/components/cardlist'
+import register from '@/components/register'
 Vue.use(Router)
 
 export default new Router({
@@ -13,9 +14,15 @@ export default new Router({
     },*/
     
     {
-      path: '/prova',
-      name: 'prova',
-      component: prova
-    }
+      path: '/fanart',
+      name: 'fanart',
+      component: cardlist,
+    },
+    
+     {
+      path: '/register',
+      name: 'register',
+      component: register,
+    },
   ]
 })
