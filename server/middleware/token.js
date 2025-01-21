@@ -11,7 +11,7 @@ function getSecret(){
         if (!data['jwt_secret']){
             throw new Error("JWT secret error")
         }
-        return data['jwt_secret']
+        return data["jwt_secret"]
     } catch (err){
         throw new Error("JWT secret error");
     }
@@ -23,7 +23,7 @@ function _from_token (token){
     return decoded;
 }
 
-function _to_token (user_data, expiresIn=28800){
+function _get_access_token (user_data, expiresIn=28800){
     const jwt_key = getSecret() //unsafe, just to show
     //delete user_data.password //è salted
     const to_encode={
@@ -37,27 +37,33 @@ function _to_token (user_data, expiresIn=28800){
     
 }
 
+function _to_token (input, expiresIn=28800){
+    const jwt_key = getSecret() //unsafe, just to show
+    //delete user_data.password //è salted
 
-function _isJwtValid(token) {
-    const jwt_key = getSecret()
-    return jwt.verify(token, jwt_key);
+    const token = jwt.sign(input, jwt_key, {
+        expiresIn: expiresIn //8hr
+    });
+    
+    return token;
+    
 }
+
+
 
 const content={
     
-    to_token: _to_token,
+    get_access_token: _get_access_token,
     
     from_token: _from_token,
-    
-    isJwtValid: _isJwtValid,
-    
+    to_token: _to_token,
     protect: (req, res, next) => {
         var payload = null
         const auth_header = req.headers['authorization']
         try{
             if (auth_header && auth_header.startsWith('Bearer ')) {
                 token = auth_header.split(' ')[1];
-                req.jwt_payload =  _isJwtValid(token); 
+                req.jwt_payload =  _from_token(token); 
                 next()
             }else{throw jwt_error}
         }catch(err){
@@ -70,11 +76,10 @@ const content={
         const page_token = req.headers['page_token']
         try{
             if (page_token) {
-                const payload =  _isJwtValid(page_token); 
+                const payload =  _from_token(page_token); 
                 req.paginate ={
                     skip:payload.skip,
                     limit:payload.limit,
-                    has_more:payload.has_more
                 }   
                 next()
             }else{

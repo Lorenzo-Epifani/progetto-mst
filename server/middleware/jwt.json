@@ -1,3 +1,4 @@
 {
- "jwt_secret":"default"
+ "jwt_secret":"default",
+ "pag_secret":"default"
 }
