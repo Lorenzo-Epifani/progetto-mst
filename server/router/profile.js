@@ -85,7 +85,6 @@ router.get('/get_myprofiledata', function(req, res) {
 }
 ); 
 
-//WIIIIP    
 router.get('/list_follow/:from_to', paginate, async function(req, res) {
     try{
         
@@ -121,27 +120,27 @@ router.get('/list_follow/:from_to', paginate, async function(req, res) {
             },
             {
               $lookup: {
-                from: 'users', // Nome della collezione User
-                localField: join_field[from_to], // Campo in Follower
-                foreignField: '_id', // Campo in User
-                as: 'user_details' // Nome del campo dove verranno inseriti i dettagli uniti
+                from: 'users', 
+                localField: join_field[from_to], 
+                foreignField: '_id', 
+                as: 'user_details'
               }
             },
             {
               $addFields: {
-                [field_name]: { $arrayElemAt: ['$user_details.username', 0] } // Sostituisci follower__user_key con username
+                [field_name]: { $arrayElemAt: ['$user_details.username', 0] }
               }
             },
             {
               $project: {
-                user_details: 0 // Opzionale: elimina il campo user_details
+                user_details: 0 
               }
             },
             {
-              $skip: req_skip // Salta i documenti in base alla pagina
+              $skip: req_skip 
             },
             {
-              $limit: req_limit // Limita il numero di documenti restituiti
+              $limit: req_limit 
             }
           ]);
         follow_list.map(el=>{
