@@ -17,9 +17,9 @@ Vue.config.productionTip = false;
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('jwtToken');
     if(token){
-        console.log("NOTOKEN")
+        console.log("LOGGED")
     }else{
-        console.log("TOKEN")
+        console.log("NOT_LOGGED")
     }
     next()
 })

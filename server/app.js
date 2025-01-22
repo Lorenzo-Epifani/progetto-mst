@@ -12,12 +12,10 @@ const PORT = 3000;
 connectDB();
 const app = express(); 
 
-const loginRoutes = require('./router/login.js'); // Importa il file della rotta
-
-const homeRoutes = require('./router/home.js'); // Importa il file della rotta
-
-
-const profileRoutes = require('./router/profile.js'); // Importa il file della rotta
+const loginRoutes = require('./router/login.js'); 
+const homeRoutes = require('./router/home.js'); 
+const myProfileRoutes = require('./router/my_profile.js'); 
+const othersProfileRoutes = require('./router/others_profile.js'); 
 
 
 
@@ -50,7 +48,8 @@ async function getBase64(filePath) {
     });
 }
 
-app.use('/profile', profileRoutes);
+app.use('/my_profile', myProfileRoutes);
+app.use('/others_profile', othersProfileRoutes);
 app.use('/auth', loginRoutes);
 app.use('/home', homeRoutes);
 app.listen(PORT, () => {
