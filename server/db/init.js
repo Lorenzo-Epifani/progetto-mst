@@ -28,21 +28,28 @@ async function initializeDatabase() {
         console.log('Database creation start!');
         
         // Crea 10 profili realistici
-        const admin= new User({username:"admin",email:"none@admin.io",password:"admin"})
+        const admin= new User({username:"admin",
+            email:"none@admin.io",
+            password:"admin",
+            img: `https://picsum.photos/seed/admin/200/300`, // URL immagine casuale
+            caption:faker.lorem.sentence()
+        })
         const users = [await admin.save()];
         for (let i = 0; i < 10; i++) {
             const user = new User({
                 username: faker.internet.userName(),
                 email: faker.internet.email(),
                 password: faker.internet.password(),
+                img: `https://picsum.photos/seed/${500+i}/200/300`, // URL immagine casuale
+                caption:faker.lorem.sentence(),
             });
             users.push(await user.save());
         }
         console.log('10 realistic user profiles created!');
         
-        // Crea 50 relazioni di follower
+        // Crea 60 relazioni di follower
         fw = []
-        while (fw.length<50){
+        while (fw.length<60){
             const follower = users[Math.floor(Math.random() * users.length)];
             const followed = users[Math.floor(Math.random() * users.length)];
             const folstring=`${follower._id.toString()}-${followed._id.toString()}`
@@ -60,22 +67,22 @@ async function initializeDatabase() {
         }
         console.log('50 follower relationships created!');
         
-        // Crea 30 post realistici
+        // Crea 150 post realistici
         const posts = [];
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 150; i++) {
             const owner = users[Math.floor(Math.random() * users.length)];
             const post = new Post({
                 owner__user_key: owner._id,
-                img: `https://picsum.photos/${i}/picsum/200/300`, // URL immagine casuale
+                img: `https://picsum.photos/seed/${500+i}/200/300`, // URL immagine casuale
                 caption: faker.lorem.sentence(), // Didascalia realistica
             });
             posts.push(await post.save());
         }
-        console.log('30 realistic posts created!');
+        console.log('150 realistic posts created!');
         
-        // Crea 50 like sui post
+        // Crea 150 like sui post
         var likep = []
-        while (likep.length < 50) {
+        while (likep.length < 150) {
             const liker = users[Math.floor(Math.random() * users.length)];
             const post = posts[Math.floor(Math.random() * posts.length)];
             const likepstring=`${liker._id.toString()}-${post._id.toString()}`
@@ -90,11 +97,11 @@ async function initializeDatabase() {
                 to__post_key: post._id,
             });
         }
-        console.log('50 post likes created!');
+        console.log('150 post likes created!');
         
-        // Crea 55 commenti realistici
+        // Crea 155 commenti realistici
         const comments = [];
-        for (let i = 0; i < 55; i++) {
+        for (let i = 0; i < 155; i++) {
             const author = users[Math.floor(Math.random() * users.length)];
             const post = posts[Math.floor(Math.random() * posts.length)];
             
@@ -105,7 +112,7 @@ async function initializeDatabase() {
             });
             comments.push(await comment.save());
         }
-        console.log('55 realistic comments created!');
+        console.log('155 realistic comments created!');
         
         // Crea 50 like sui commenti
         var likec = []
@@ -129,6 +136,7 @@ async function initializeDatabase() {
         
         console.log('Database initialization complete with realistic data!');
     } catch (err) {
+        await mongoose.connection.dropDatabase();
         console.error('Error initializing database:', err);
     } finally {
         mongoose.connection.close();

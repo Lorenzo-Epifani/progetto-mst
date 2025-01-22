@@ -10,6 +10,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  caption: {
+    type: String,
+    required: true,
+  },
+  img: {
+    type: String,
+    required: true,
+  },
+
 }, {
   collection: 'users',
   timestamps: true,
