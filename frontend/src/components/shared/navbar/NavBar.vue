@@ -25,6 +25,7 @@
             @click="goTo('/profile')"
             ></md-tab>
             
+            <!-- Bottone Logout -->
             <md-tab
             v-if="isLoggedIn"
             id="tab-logout"
@@ -32,24 +33,40 @@
             md-icon="logout"
             @click="deleteToken()"
             ></md-tab>
+            
+            <!-- Bottone Search -->
+            <md-tab
+            id="tab-search"
+            md-label="Search"
+            md-icon="search"
+            @click="toggleSearchBox"
+            ></md-tab>
         </md-tabs>
+        
+        <!-- Search Box -->
+        <SearchBox ref="searchBox" />
     </div>
 </template>
 
+
 <script>
+import SearchBox from './overlay/SearchBox.vue';
+
 export default {
     name: "NavBar",
+    components: {
+        SearchBox,
+    },
     computed: {
         isLoggedIn() {
             return !!localStorage.getItem('sessionToken');
         }
     },
-    data() {
-        return {
-        };
-    },
-    created() {
-        
+    mounted() {
+        // Aggiungi un watcher per il cambio di rotta
+        this.$watch('$route', () => {
+            this.$refs.searchBox.closeSearch();
+        });
     },
     methods: {
         goTo(route) {
@@ -58,11 +75,14 @@ export default {
             }
         },
         deleteToken() {
-            localStorage.removeItem("sessionToken")
-            
-            window.location.reload()
+            localStorage.removeItem("sessionToken");
+            window.location.reload();
             this.$router.push("/login");
-        }
+        },
+        toggleSearchBox() {
+            this.$refs.searchBox.openSearch();
+        },
+        
     },
 };
 </script>
