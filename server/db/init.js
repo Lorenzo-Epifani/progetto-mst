@@ -28,7 +28,8 @@ async function initializeDatabase() {
         console.log('Database creation start!');
         
         // Crea 10 profili realistici
-        const users = [];
+        const admin= new User({username:"admin",email:"none@admin.io",password:"admin"})
+        const users = [await admin.save()];
         for (let i = 0; i < 10; i++) {
             const user = new User({
                 username: faker.internet.userName(),
@@ -65,7 +66,7 @@ async function initializeDatabase() {
             const owner = users[Math.floor(Math.random() * users.length)];
             const post = new Post({
                 owner__user_key: owner._id,
-                img: `placeholder.png`, // URL immagine casuale
+                img: `https://picsum.photos/${i}/picsum/200/300`, // URL immagine casuale
                 caption: faker.lorem.sentence(), // Didascalia realistica
             });
             posts.push(await post.save());
