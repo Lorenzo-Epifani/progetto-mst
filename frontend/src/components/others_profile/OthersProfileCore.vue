@@ -124,6 +124,7 @@
   
   <script>
   import * as api from "@/api/others_profile.js";
+  import * as shared_api from "@/api/shared.js";
   
   export default {
     data() {
@@ -145,15 +146,18 @@
     },
     methods:{
         loadMorePosts(){
-            console.log("TODO")
+            //TODO
         }
     },
     async created() {
     const sessionToken = localStorage.getItem("sessionToken");
-
+    const whoami = await shared_api.whoami(sessionToken)
+    if (whoami.data==this.profile_data.others_name){
+      this.$router.push({ name: "my_profile" }); 
+    }
     if (!sessionToken) {
       // Token non trovato, reindirizza a login
-      this.$router.push({ name: "login" }); // Assicurati che la rotta di login abbia il nome "login"
+      this.$router.push({ name: "login" }); 
       return;
     }
 
@@ -161,7 +165,6 @@
     this.isAuthenticated = true;
     this.profile_data = await api.init_profile(this.$route.params.visited_username,sessionToken);
     this.profile_data["all_posts"]=this.profile_data.post_cursor.post_list
-    //console.log(this.profile_data)
   },
   };
   </script>

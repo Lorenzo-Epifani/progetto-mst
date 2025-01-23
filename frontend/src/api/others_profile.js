@@ -6,7 +6,7 @@ const instance = axios.create({
 });
 
 export async function user_exists (username) {
-    const response = await instance.get(`/exists:${username}`);    
+    const response = await instance.get(`/exists/${username}`);    
     return response
 }
  
@@ -35,8 +35,6 @@ export async function init_profile (visited_user,session_token) {
         others_caption:mydata.data.caption,
         others_name:mydata.data.username,
     }
-    //console.log(mydata)
-    console.log(response_data)
     return response_data
   }
 

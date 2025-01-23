@@ -12,7 +12,7 @@ export async function login (user,psw) {
             'user': user,
             'psw': psw
         }
-    });    //console.log(response.data)
+    });    
     return response
   }
 

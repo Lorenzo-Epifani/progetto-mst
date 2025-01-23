@@ -15,7 +15,7 @@ Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('jwtToken');
+    const token = localStorage.getItem('sessionToken');
     if(token){
         console.log("LOGGED")
     }else{

@@ -21,8 +21,8 @@ router.use(wrap_jwt); // MIDDLEWARE TO ALL API
     const visited_username = req.params.visited_username
     
     const vst_usr_result = await User.findOne({ username: visited_username});//salting hash, implementa
-    if (!vst_usr_result){Amanda.Lang
-        return res.status(401).message("Bad Request");
+    if (!vst_usr_result){
+        return res.status(401).send("Bad Request");
     }
     const vst_user_id = vst_usr_result._doc._id
     

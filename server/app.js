@@ -16,6 +16,7 @@ const loginRoutes = require('./router/login.js');
 const homeRoutes = require('./router/home.js'); 
 const myProfileRoutes = require('./router/my_profile.js'); 
 const othersProfileRoutes = require('./router/others_profile.js'); 
+const sharedRoutes = require('./router/shared.js'); 
 
 
 
@@ -50,6 +51,7 @@ async function getBase64(filePath) {
 
 app.use('/my_profile', myProfileRoutes);
 app.use('/others_profile', othersProfileRoutes);
+app.use('/shared', sharedRoutes);
 app.use('/auth', loginRoutes);
 app.use('/home', homeRoutes);
 app.listen(PORT, () => {

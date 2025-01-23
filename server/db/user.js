@@ -28,6 +28,19 @@ const UserSchema = new mongoose.Schema({
   collection: 'users',
   timestamps: true,
 });
+
+UserSchema.pre('find', function () {
+    this.select('-password');
+  });
+  
+  UserSchema.pre('findOne', function () {
+    this.select('-password');
+  });
+  
+  UserSchema.pre('findById', function () {
+    this.select('-password');
+  });
+
 //EXTRA DATA 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

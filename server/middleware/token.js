@@ -74,11 +74,12 @@ const content={
         var payload = null
         const auth_header = req.headers['authorization']
         try{
+            req.jwt_payload={}
             if (auth_header && auth_header.startsWith('Bearer ')) {
                 token = auth_header.split(' ')[1];
                 req.jwt_payload =  _from_token(token); 
                 next()
-            }else{throw next()}
+            }else{next()}
         }catch(err){
             return res.status(401).json({ msg: err, error:"Bad Request"});
         }

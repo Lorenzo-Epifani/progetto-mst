@@ -59,7 +59,6 @@ export default {
             catch(err){
                 login_response = err
             }
-            //console.log(login_response.status)
 
             if (!login_response || login_response.status!=200){
                 this.errorMessage = "Authentication Failed";
