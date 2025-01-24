@@ -1,9 +1,6 @@
-const axios = require('axios');//livello tra front end e db per richiedere e spacchettare i json
+import { createSubInstance } from './axios_instance';
 
-const instance = axios.create({
-  baseURL: 'http://localhost:3000/my_profile',
-  timeout: 4000
-});
+const instance = createSubInstance('/my_profile');
 
 
 export async function init_me (session_token) {
@@ -29,6 +26,20 @@ export async function init_me (session_token) {
         my_name:mydata.data.username,
     }
     return response_data
+  }
+
+  export async function more_posts (session_token,page_token) {
+    const info={
+        headers: {
+            'authorization': `Bearer ${session_token}`,
+            'page_token':page_token
+        }
+    }
+    
+    const list_post = await instance.get('/list_post', info);    
+    //const profile_info = await instance.get('/profile_info', info);    
+
+    return list_post
   }
 
 

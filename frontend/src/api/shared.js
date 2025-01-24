@@ -1,9 +1,6 @@
-const axios = require('axios');//livello tra front end e db per richiedere e spacchettare i json
+import { createSubInstance } from './axios_instance';
 
-const instance = axios.create({
-  baseURL: 'http://localhost:3000/shared',
-  timeout: 4000
-});
+const instance = createSubInstance('/shared');
 
 
 export async function whoami (session_token) {

@@ -17,18 +17,25 @@ router.use(wrap_jwt); // MIDDLEWARE TO ALL API
 
     router.get('/list_post/:visited_username', paginate, async function(req, res) {
     const PAGE_L=5 // Should be in a config
+    const MAX_UNAUTH_CALL=2 // Should be in a config
     const caller_username = req.jwt_payload?.username ?? false;
     const visited_username = req.params.visited_username
     
     const vst_usr_result = await User.findOne({ username: visited_username});//salting hash, implementa
     if (!vst_usr_result){
-        return res.status(401).send("Bad Request");
+        return res.sendStatus(404);
     }
     const vst_user_id = vst_usr_result._doc._id
     
     const req_limit = req.paginate ? parseInt(req.paginate.limit) : PAGE_L;
     const req_skip = req.paginate ? parseInt(req.paginate.skip) : 0;
-    
+    const req_num = 1+parseInt(req_skip/PAGE_L)
+
+    if ( !caller_username && req_num>MAX_UNAUTH_CALL){
+        return res.sendStatus(423);
+
+    }
+
     const tot_posts_num = await Post.countDocuments({ owner__user_key: vst_user_id }); // Totale post
     const has_more = req_limit + req_skip < tot_posts_num
     
@@ -62,7 +69,7 @@ router.use(wrap_jwt); // MIDDLEWARE TO ALL API
 router.get('/user_info/:visited_username', async function(req, res) {
     const visited_username = req.params.visited_username
 
-    const username = req.jwt_payload.username
+    const caller_username = req.jwt_payload?.username ?? false
     const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
     delete user_db_result._doc.password
     delete user_db_result._doc._id
@@ -76,7 +83,7 @@ router.get('/count_follow/:visited_username', async function(req, res) {
     const visited_username = req.params.visited_username
 
     try{
-        const username = req.jwt_payload.username
+        const caller_username = req.jwt_payload?.username ?? false;
         const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
         const user_id_str = user_db_result._doc._id.toString()    
         const followers_db_result = await Follower.countDocuments({ unique_pair: { $regex: `^${user_id_str}` } })
@@ -93,7 +100,7 @@ router.get('/count_post/:visited_username', async function(req, res) {
     const visited_username = req.params.visited_username
 
     try{
-        const username = req.jwt_payload.username
+        const caller_username = req.jwt_payload?.username ?? false;
         const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
         const user_id = user_db_result._doc._id    
         const post_count_deb_result = await Post.countDocuments({ owner__user_key: user_id })
@@ -113,8 +120,8 @@ router.get('/list_follow/:visited_username/:from_to', async function(req, res) {
     try{
         
         const PAGE_L=5 // Should be in a config
-        const username = req.jwt_payload.username
-        const user_db_result = await User.findOne({ username: username});//salting hash, implementa
+        const caller_username = req.jwt_payload?.username ?? false;
+        const user_db_result = await User.findOne({ username: caller_username});//salting hash, implementa
         const user_id = user_db_result._doc._id
         const from_to = req.params.from_to; // 
         

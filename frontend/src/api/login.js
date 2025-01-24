@@ -1,9 +1,7 @@
-const axios = require('axios');//livello tra front end e db per richiedere e spacchettare i json
+import { createSubInstance } from './axios_instance';
+const instance = createSubInstance('/auth');
 
-const instance = axios.create({
-  baseURL: 'http://localhost:3000/auth',
-  timeout: 4000
-});
+
 
 
 export async function login (user,psw) {

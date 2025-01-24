@@ -31,11 +31,12 @@
           <img :src="post.img" alt="Post Image" />
         </div>
       </div>
+      <LoginOverlay :isOpen="showLoginOverlay" />
   
       <!-- Bottone per caricare altri post -->
-      <div class="load-more">
-        <button @click="loadMorePosts">Carica altri post</button>
-      </div>
+        <div v-if="profile_data.post_cursor.next_token" class="load-more">
+            <button @click="loadMorePosts">Load more</button>
+        </div>
     </div>
   </template>
   
@@ -125,10 +126,15 @@
   <script>
   import * as api from "@/api/others_profile.js";
   import * as shared_api from "@/api/shared.js";
-  
+  import LoginOverlay from '@/components/others_profile/overlay/LoginOverlay.vue';
+
   export default {
+    components: {
+    LoginOverlay, // Registra il componente
+  },
     data() {
       return {
+        showLoginOverlay: false,
         profile_data:{
             all_posts:[],
             followers:null,
@@ -145,25 +151,34 @@
       };
     },
     methods:{
-        loadMorePosts(){
-            //TODO
+        async loadMorePosts(){
+            const page_token = this.profile_data.post_cursor.next_token
+            const sessionToken = localStorage.getItem("sessionToken") || null;
+            const visited_user = this.$route.params.visited_username
+            try{
+                const more_posts = await api.more_posts(sessionToken, page_token, visited_user)
+                this.profile_data.all_posts.push(...more_posts.data.post_list)
+                this.profile_data.post_cursor.next_token = more_posts.data.next_token
+            }catch(error){
+                if (error.response.status===423)
+            {
+                this.showLoginOverlay = true; // Mostra l'overlay
+            }
+            }
         }
     },
     async created() {
     const sessionToken = localStorage.getItem("sessionToken");
+    if(sessionToken){
     const whoami = await shared_api.whoami(sessionToken)
-    if (whoami.data==this.profile_data.others_name){
-      this.$router.push({ name: "my_profile" }); 
+        if (whoami.data==this.profile_data.others_name){
+        this.$router.push({ name: "my_profile" }); 
+        }
     }
-    if (!sessionToken) {
-      // Token non trovato, reindirizza a login
-      this.$router.push({ name: "login" }); 
-      return;
-    }
+ 
 
     // Token presente, procedi con il caricamento dei dati
-    this.isAuthenticated = true;
-    this.profile_data = await api.init_profile(this.$route.params.visited_username,sessionToken);
+    this.profile_data = await api.init_profile(sessionToken,this.$route.params.visited_username);
     this.profile_data["all_posts"]=this.profile_data.post_cursor.post_list
   },
   };

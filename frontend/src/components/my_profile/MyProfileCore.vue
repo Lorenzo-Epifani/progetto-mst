@@ -33,8 +33,8 @@
         </div>
         
         <!-- Bottone per caricare altri post -->
-        <div class="load-more">
-            <button @click="loadMorePosts">Carica altri post</button>
+        <div v-if="my_profile_data.post_cursor.next_token" class="load-more">
+            <button @click="loadMorePosts">Load more</button>
         </div>
     </div>
 </template>
@@ -144,8 +144,12 @@ export default {
         };
     },
     methods:{
-        loadMorePosts(){
-            //TODO
+        async loadMorePosts(){
+            const page_token = this.my_profile_data.post_cursor.next_token
+            const more_posts = await api.more_posts(localStorage.getItem("sessionToken"), page_token)
+            //console.log(more_posts)
+            this.my_profile_data.all_posts.push(...more_posts.data.post_list)
+            this.my_profile_data.post_cursor.next_token = more_posts.data.next_token
         }
     },
     async created() {
@@ -158,7 +162,6 @@ export default {
         }
         
         // Token presente, procedi con il caricamento dei dati
-        this.isAuthenticated = true;
         this.my_profile_data = await api.init_me(sessionToken);
         this.my_profile_data["all_posts"]=this.my_profile_data.post_cursor.post_list
     },

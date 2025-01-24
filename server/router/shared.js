@@ -20,7 +20,7 @@ router.get('/whoami', protect, async function (req, res) {
 router.get('/search', async function (req, res) {
     try {
         const search_string = req.headers['search_string']
-        const db_result = await User.find({username: { $regex: search_string, $options: 'i' }}).limit(6);
+        const db_result = await User.find({username: { $regex: search_string, $options: 'i' }}).limit(10);
         db_result.map(el=>{
             el._doc={
                 username:el._doc.username,

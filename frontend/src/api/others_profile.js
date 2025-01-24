@@ -1,31 +1,28 @@
-const axios = require('axios');//livello tra front end e db per richiedere e spacchettare i json
+import { createSubInstance } from './axios_instance';
 
-const instance = axios.create({
-  baseURL: 'http://localhost:3000/others_profile',
-  timeout: 4000
-});
+const instance = createSubInstance('/others_profile');
 
 export async function user_exists (username) {
     const response = await instance.get(`/exists/${username}`);    
     return response
 }
- 
-export async function init_profile (visited_user,session_token) {
 
+export async function init_profile (session_token,visited_user) {
+    
     const info = {headers:{}}
     if (session_token){
         info.headers={
             'authorization': `Bearer ${session_token}`,
         }
     }
-
-
+    
+    
     //TODO 
     const list_post = await instance.get(`/list_post/${visited_user}`,info);    
     const count_follow = await instance.get(`/count_follow/${visited_user}`,info);   
     const count_post = await instance.get(`/count_post/${visited_user}`,info);    
     const mydata = await instance.get(`/user_info/${visited_user}`,info);    
-
+    
     const response_data = {
         followers:count_follow.data.followers,
         followed:count_follow.data.followed,
@@ -36,7 +33,23 @@ export async function init_profile (visited_user,session_token) {
         others_name:mydata.data.username,
     }
     return response_data
-  }
+}
+
+export async function more_posts (session_token, page_token, visited_user) {
+    const info={
+        headers: {
+            'authorization': `Bearer ${session_token}`,
+            'page_token':page_token
+        }
+    }
+    
+    
+    const list_post = await instance.get(`/list_post/${visited_user}`, info);    
+    //const profile_info = await instance.get('/profile_info', info);    
+    
+    return list_post
+}
+
 
 
 
