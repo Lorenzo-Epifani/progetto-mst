@@ -35,14 +35,14 @@
         </div>
     </div>
     <!-- Overlay -->
-
+    
     <!-- Anteprima Post -->
     <div class="post-grid">
         <div v-for="(post, index) in this.profile_data.all_posts" :key="index" class="post-preview">
             <img :src="post.img" alt="Post Image" />
         </div>
     </div>
-    <LoginOverlay :isOpen="showLoginOverlay" />
+    <!--  <LoginOverlay :isOpen="showLoginOverlay" /> OLD -->
     <FollowOverlay v-if="showFollowOverlay"  :isOpen="showFollowOverlay" :type="overlayType" @close="closeOverlay" :username="others_name"/>
     
     <!-- Bottone per caricare altri post -->
@@ -170,17 +170,16 @@
 <script>
 import * as api from "@/api/others_profile.js";
 import * as shared_api from "@/api/shared.js";
-import LoginOverlay from '@/components/others_profile/overlay/LoginOverlay.vue';
+//import LoginOverlay from '@/components/others_profile/overlay/LoginOverlay.vue';
 import FollowOverlay from "@/components/others_profile/overlay/FollowOverlay.vue";
 
 export default {
     components: {
-        LoginOverlay, // Registra il componente
+        //LoginOverlay, // Registra il componente
         FollowOverlay // Registra il componente per l'overlay
     },
     data() {
         return {
-            showLoginOverlay: false,
             showFollowOverlay:false,
             isFollowed:false,
             othersExists:true,
@@ -212,17 +211,14 @@ export default {
                 this.profile_data.all_posts.push(...more_posts.data.post_list)
                 this.profile_data.post_cursor.next_token = more_posts.data.next_token
             }catch(error){
-                if (error.response.status===423)
-                {
-                    this.showLoginOverlay = true; // Mostra l'overlay
-                }
-            }
+throw error
+     }
         },
         async clickFollow(){
             try{
                 const token = localStorage.getItem("sessionToken")
                 const response = await api.follow_unfollow(token,this.whoami,this.others_name)
-
+                
                 switch (response) {
                     case "REMOVED":
                     this.profile_data.followers--
@@ -233,10 +229,7 @@ export default {
                 }
                 this.isFollowed=!this.isFollowed
             }catch(error){
-                if (error.response.status===423)
-                {
-                    this.showLoginOverlay = true; // Mostra l'overlay
-                }
+                throw error
             }
         },
         openOverlay(type) {

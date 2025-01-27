@@ -37,7 +37,7 @@ export async function whoami (session_token) {
         following: "from"
     }
     const list_post = await instance.get(`/list_follow/${visited_user}/${ft[from_to]}`, info);    
-    return list_post.data
+    return list_post
   }
 
 

@@ -56,16 +56,22 @@ export default {
         async loadEntries(next_token=null) {
             try {
                 const response = await api.load_follow(localStorage.getItem("sessionToken"), next_token, this.username, this.type);
-                this.entries.push(...response.profiles);
+                this.entries.push(...response.data.profiles);
                 
-                this.nextPageToken = response.next_token; // Aggiorna il token per la paginazione
-                this.has_more = response.has_more; // Aggiorna il token per la paginazione
+                this.nextPageToken = response.data.next_token; // Aggiorna il token per la paginazione
+                this.has_more = response.data.has_more; // Aggiorna il token per la paginazione
             } catch (error) {
-                console.error("Loading Error:", error);
+
+                throw error
             }
         },
-        loadMoreEntries() {
-            this.loadEntries(this.nextPageToken); // Carica altre entries
+        async loadMoreEntries() {
+            try{
+            await this.loadEntries(this.nextPageToken); // Carica altre entries
+            } catch(error){
+                this.$emit("close"); 
+                throw error
+            }
         },
         closeOverlay() {
             this.$emit("close"); // Comunica al componente genitore di chiudere l'overlay

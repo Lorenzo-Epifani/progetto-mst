@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import { EventBus } from '@/eventBus'; // Usa un EventBus per comunicare tra componenti
+
 export default {
     props: {
         isOpen: {
@@ -19,6 +21,7 @@ export default {
         redirectToLogin() {
             if (this.$route.name !== 'login') {
                 this.$router.push({ name: 'login' }); // Reindirizza solo se non sei già nella rotta login
+                EventBus.$emit('closeLoginOverlay');
             }
         },
     },

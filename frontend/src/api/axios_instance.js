@@ -1,5 +1,6 @@
 // src/api/axiosInstance.js
 import axios from 'axios';
+import { EventBus } from '@/eventBus'; // Usa un EventBus per comunicare tra componenti
 
 // Configura l'istanza Axios
 const instance = axios.create({
@@ -27,11 +28,23 @@ instance.interceptors.response.use(
 );
 
 export const createSubInstance = (subPath) => {
-    return axios.create({
+    const sub_instance = axios.create({
       baseURL: `${instance.defaults.baseURL}${subPath}`,
       timeout: instance.defaults.timeout,
       headers: instance.defaults.headers,
     });
+    sub_instance.interceptors.response.use(
+        (response) => response, // Restituisci le risposte valide
+        (error) => {
+            console.log("FORCE_TO_LOGIN")
+          // Se il codice di stato è 423, attiva l'evento di apertura dell'overlay
+          if (error.response && error.response.status === 423) {
+            EventBus.$emit('openLoginOverlay');
+          }
+          //return Promise.reject(error); // Propaga l'errore
+        }
+      );
+      return sub_instance
   };
 
 export default instance;

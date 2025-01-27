@@ -40,7 +40,7 @@ router.get('/list_follow/:visited_username/:from_to', wrap_jwt,jwt_utils.paginat
     const visited_username = req.params.visited_username
 
     try{
-        
+        MAX_UNAUTH_CALL = 1
         const PAGE_L=5 // Should be in a config
         const caller_username = req.jwt_payload?.username ?? false;
         const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
