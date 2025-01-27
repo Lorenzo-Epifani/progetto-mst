@@ -23,18 +23,19 @@
                     <strong>{{ this.profile_data.post_count }}</strong>
                     <span>Post</span>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" @click="openOverlay('followers')"> 
                     <strong>{{ this.profile_data.followers }}</strong>
                     <span>Followers</span>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" @click="openOverlay('following')"> 
                     <strong>{{ this.profile_data.followed }}</strong>
                     <span>Following</span>
                 </div>
             </div>
         </div>
     </div>
-    
+    <!-- Overlay -->
+
     <!-- Anteprima Post -->
     <div class="post-grid">
         <div v-for="(post, index) in this.profile_data.all_posts" :key="index" class="post-preview">
@@ -42,6 +43,7 @@
         </div>
     </div>
     <LoginOverlay :isOpen="showLoginOverlay" />
+    <FollowOverlay v-if="showFollowOverlay"  :isOpen="showFollowOverlay" :type="overlayType" @close="closeOverlay" :username="others_name"/>
     
     <!-- Bottone per caricare altri post -->
     <div v-if="profile_data.post_cursor.next_token" class="load-more">
@@ -169,17 +171,21 @@
 import * as api from "@/api/others_profile.js";
 import * as shared_api from "@/api/shared.js";
 import LoginOverlay from '@/components/others_profile/overlay/LoginOverlay.vue';
+import FollowOverlay from "@/components/others_profile/overlay/FollowOverlay.vue";
 
 export default {
     components: {
         LoginOverlay, // Registra il componente
+        FollowOverlay // Registra il componente per l'overlay
     },
     data() {
         return {
             showLoginOverlay: false,
+            showFollowOverlay:false,
             isFollowed:false,
             othersExists:true,
-            whoami:null,
+            whoami: null,
+            overlayType: null, // Tipo di overlay: "followers" o "followed"
             others_name:this.$route.params.visited_username,
             logged:false,
             profile_data:{
@@ -216,13 +222,13 @@ export default {
             try{
                 const token = localStorage.getItem("sessionToken")
                 const response = await api.follow_unfollow(token,this.whoami,this.others_name)
-                console.log(response)
+
                 switch (response) {
                     case "REMOVED":
-                        this.profile_data.followers--
+                    this.profile_data.followers--
                     break;
                     case "ADDED":
-                        this.profile_data.followers++
+                    this.profile_data.followers++
                     break
                 }
                 this.isFollowed=!this.isFollowed
@@ -232,7 +238,15 @@ export default {
                     this.showLoginOverlay = true; // Mostra l'overlay
                 }
             }
-        }
+        },
+        openOverlay(type) {
+            this.overlayType = type; // "followers" o "followed"
+            this.showFollowOverlay = true;
+        },
+        closeOverlay() {
+            this.showFollowOverlay = false;
+            this.overlayType = null;
+        },
     },
     async created() {
         this.exist = api.exist(this.others_name) //CHECK IF USER EXIST
@@ -244,7 +258,7 @@ export default {
             }
             this.logged=true
             this.isFollowed = await api.follow_check(sessionToken,this.whoami,this.others_name)
-
+            
         }
         
         // Token presente, procedi con il caricamento dei dati

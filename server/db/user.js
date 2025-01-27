@@ -40,6 +40,9 @@ UserSchema.pre('find', function () {
   UserSchema.pre('findById', function () {
     this.select('-password');
   });
+  UserSchema.pre('aggregate', function () {
+    this.select('-password');
+  });
 
 //EXTRA DATA 
 const User = mongoose.model('User', UserSchema);
