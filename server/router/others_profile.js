@@ -9,13 +9,15 @@ var User = require('../db/user.js');
 var Post = require('../db/post.js');
 
 const wrap_jwt = token_utils.wrap_jwt
+const protect = token_utils.protect
 const paginate = token_utils.paginate
+const mongoose = require('mongoose');
 
 
-router.use(wrap_jwt); // MIDDLEWARE TO ALL API
+//router.use(wrap_jwt); // MIDDLEWARE TO ALL API
 
 
-    router.get('/list_post/:visited_username', paginate, async function(req, res) {
+    router.get('/list_post/:visited_username', wrap_jwt, paginate, async function(req, res) {
     const PAGE_L=5 // Should be in a config
     const MAX_UNAUTH_CALL=2 // Should be in a config
     const caller_username = req.jwt_payload?.username ?? false;
@@ -66,7 +68,7 @@ router.use(wrap_jwt); // MIDDLEWARE TO ALL API
 }
 );
 //VERIFY TOKEN
-router.get('/user_info/:visited_username', async function(req, res) {
+router.get('/user_info/:visited_username', wrap_jwt, async function(req, res) {
     const visited_username = req.params.visited_username
 
     const caller_username = req.jwt_payload?.username ?? false
@@ -79,15 +81,15 @@ router.get('/user_info/:visited_username', async function(req, res) {
 }
 );
 //VERIFY TOKEN
-router.get('/count_follow/:visited_username', async function(req, res) {
+router.get('/count_follow/:visited_username', wrap_jwt, async function(req, res) {
     const visited_username = req.params.visited_username
 
     try{
         const caller_username = req.jwt_payload?.username ?? false;
         const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
         const user_id_str = user_db_result._doc._id.toString()    
-        const followers_db_result = await Follower.countDocuments({ unique_pair: { $regex: `^${user_id_str}` } })
-        const followed_db_result = await Follower.countDocuments({ unique_pair: { $regex: `${user_id_str}$` } })
+        const followers_db_result = await Follower.countDocuments({ unique_pair: { $regex: `${user_id_str}$` } })
+        const followed_db_result = await Follower.countDocuments({ unique_pair: { $regex: `^${user_id_str}` } })
         return res.status(200).json({"followers":followers_db_result,"followed":followed_db_result})
     }catch(error){
         return res.status(500).json(error.message);
@@ -96,7 +98,7 @@ router.get('/count_follow/:visited_username', async function(req, res) {
 }
 );
 
-router.get('/count_post/:visited_username', async function(req, res) {
+router.get('/count_post/:visited_username', wrap_jwt, async function(req, res) {
     const visited_username = req.params.visited_username
 
     try{
@@ -114,14 +116,14 @@ router.get('/count_post/:visited_username', async function(req, res) {
 );
 
 
-router.get('/list_follow/:visited_username/:from_to', async function(req, res) {
+router.get('/list_follow/:visited_username/:from_to', wrap_jwt, async function(req, res) {
     const visited_username = req.params.visited_username
 
     try{
         
         const PAGE_L=5 // Should be in a config
         const caller_username = req.jwt_payload?.username ?? false;
-        const user_db_result = await User.findOne({ username: caller_username});//salting hash, implementa
+        const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
         const user_id = user_db_result._doc._id
         const from_to = req.params.from_to; // 
         
@@ -134,8 +136,12 @@ router.get('/list_follow/:visited_username/:from_to', async function(req, res) {
         
         const tot_follow_num = await Follower.countDocuments({ unique_pair: { $regex: actor1_query } })
         const has_more = req_limit + req_skip < tot_follow_num
+        const req_num = 1+parseInt(req_skip/PAGE_L)
         
-        
+        if ( !caller_username && req_num>MAX_UNAUTH_CALL){
+            return res.sendStatus(423);
+    
+        } 
         
         
         const join_field={
@@ -202,6 +208,55 @@ router.get('/list_follow/:visited_username/:from_to', async function(req, res) {
     }
 }
 );
+
+router.get('/click_follow_to/:visited_username/:check', protect, async function(req, res) {
+    const visited_username = req.params.visited_username
+    const caller_username = req.jwt_payload?.username ?? false;
+    const just_check = req.params.check
+    var response = null
+    try{
+        const visited_id = (await User.findOne({ username: visited_username}))._doc._id.toString()
+        const caller_id = (await User.findOne({ username: caller_username}))._doc._id.toString()
+        const unique_pair = `${caller_id}_${visited_id}`
+
+        const exist = await Follower.findOne({ unique_pair: unique_pair });
+        response = Boolean(exist)
+        if (just_check==="check"){
+            return res.status(200).json(response)
+        }
+
+        if (exist){
+            await Follower.deleteOne({ unique_pair: unique_pair });
+            response="REMOVED"
+        } else {
+            const newFollower = new Follower({
+                unique_pair: unique_pair,
+                follower__user_key: caller_id,
+                followed__user_key: visited_id,
+              });
+              //const session = await mongoose.startSession();
+              //await session.commitTransaction();
+              //await newFollower.save({ session });
+              await newFollower.save();
+              response="ADDED"
+        }
+        return res.status(200).json(response)
+    }catch(error){
+        return res.status(500).json(error.message);
+    }
+})
+
+router.get('/exist/:visited_username/', async function(req, res) {
+    const visited_username = req.params.visited_username
+    try{
+    const user_exist = await User.findOne({ username: visited_username});//salting hash, implementa
+    const result = Boolean(user_exist)
+    return res.status(200).json(result)
+
+    }catch(error){
+        return res.status(500).json(error.message);
+    }
+})
 
 
 

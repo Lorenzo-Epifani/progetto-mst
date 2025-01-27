@@ -72,8 +72,8 @@ router.get('/count_follow', async function(req, res) {
         const username = req.jwt_payload.username
         const user_db_result = await User.findOne({ username: username});//salting hash, implementa
         const user_id_str = user_db_result._doc._id.toString()    
-        const followers_db_result = await Follower.countDocuments({ unique_pair: { $regex: `^${user_id_str}` } })
-        const followed_db_result = await Follower.countDocuments({ unique_pair: { $regex: `${user_id_str}$` } })
+        const followers_db_result = await Follower.countDocuments({ unique_pair: { $regex: `${user_id_str}$` } })
+        const followed_db_result = await Follower.countDocuments({ unique_pair: { $regex: `^${user_id_str}` } })
         return res.status(200).json({"followers":followers_db_result,"followed":followed_db_result})
     }catch(error){
         return res.status(500).json(error.message);

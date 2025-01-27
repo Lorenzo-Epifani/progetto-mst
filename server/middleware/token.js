@@ -67,7 +67,7 @@ const content={
                 next()
             }else{throw jwt_error}
         }catch(err){
-            return res.status(401).json({ msg: err, error:"TOKEN_KO"});
+            return res.status(423).json({ msg: err, error:"Unhautorized. Login again"});
         }
     },
     wrap_jwt: (req, res, next) => {

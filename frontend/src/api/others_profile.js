@@ -50,6 +50,34 @@ export async function more_posts (session_token, page_token, visited_user) {
     return list_post
 }
 
+export async function exist (visited_user) {
+
+    const exist = await instance.get(`/exist/${visited_user}`);    
+    return exist.data
+}
+
+export async function follow_unfollow (session_token, whoami, visited_user) {
+    const info={
+        headers: {
+            'authorization': `Bearer ${session_token}`
+        }
+    }
+    const follow_response = await instance.get(`/click_follow_to/${visited_user}/0`,info);    
+    
+    return follow_response.data
+}
+
+export async function follow_check (session_token, whoami, visited_user) {
+    const info={
+        headers: {
+            'authorization': `Bearer ${session_token}`
+        }
+    }
+
+    const follow_response = await instance.get(`/click_follow_to/${visited_user}/check`,info);    
+
+    return follow_response.data
+}
 
 
 

@@ -11,6 +11,7 @@ const mime = new _mime.Mime()
 const PORT = 3000;
 connectDB();
 const app = express(); 
+const logging = require('./middleware/logging'); // Path al middleware
 
 const loginRoutes = require('./router/login.js'); 
 const homeRoutes = require('./router/home.js'); 
@@ -24,7 +25,7 @@ app.use(express.json());
 app.use(cors());  
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use(logging.log_request); 
 //const AuthController = require('./auth/authcontroller.js');
 //app.use('/auth', AuthController);
 
