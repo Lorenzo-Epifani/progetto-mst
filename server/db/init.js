@@ -6,16 +6,11 @@ const Post = require('./post.js');
 const Comment = require('./comment.js');
 const CommentLike = require('./comment_like.js');
 const PostLike = require('./post_like.js');
+const Password = require('./password.js');
 const { faker } = require('@faker-js/faker');
+const jwt_utils = require('../middleware/token.js');
 
-SALT = "mysalt"
-
-function hash_psw(psw,salt){
-    var shasum = crypto.createHash('sha1')
-    const pswstring = `${salt}_${psw}` 
-    shasum.update(pswstring)
-    return shasum.digest('hex') 
-}
+const hash_psw = jwt_utils.hash_psw
 
 mongoose.connect('mongodb://localhost:27017/sketch_db', {
     useNewUrlParser: true,
@@ -28,21 +23,31 @@ async function initializeDatabase() {
         console.log('Database creation start!');
         
         // Crea 10 profili realistici
-        const admin= new User({username:"admin",
+        const admin = new User({username:"admin",
             email:"none@admin.io",
-            password:"admin",
+            //password:hash_psw("admin"),
             img: `https://picsum.photos/seed/admin/200/300`, // URL immagine casuale
             caption:faker.lorem.sentence()
         })
+        const admin_psw = new Password({
+            password: hash_psw("admin"),
+            username__user_key: admin._id
+        })
         const users = [await admin.save()];
+        const passwords = [await admin_psw.save()];
         for (let i = 0; i < 10; i++) {
             const user = new User({
                 username: faker.internet.userName(),
                 email: faker.internet.email(),
-                password: faker.internet.password(),
+                //password: hash_psw(faker.internet.password()),
                 img: `https://picsum.photos/seed/${500+i}/200/300`, // URL immagine casuale
                 caption:faker.lorem.sentence(),
             });
+            const password = new Password({
+                password: hash_psw(`psw_${user.username}`),
+                username__user_key: user._id
+            })
+            passwords.push(await password.save());
             users.push(await user.save());
         }
         console.log('10 realistic user profiles created!');

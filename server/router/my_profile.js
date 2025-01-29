@@ -59,7 +59,6 @@ router.get('/list_post', paginate, async function(req, res) {
 router.get('/user_info', async function(req, res) {
     const username = req.jwt_payload.username
     const user_db_result = await User.findOne({ username: username});//salting hash, implementa
-    delete user_db_result._doc.password
     delete user_db_result._doc._id
 
     return res.status(200).json(user_db_result)

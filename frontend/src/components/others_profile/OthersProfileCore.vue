@@ -206,31 +206,25 @@ export default {
             const page_token = this.profile_data.post_cursor.next_token
             const sessionToken = localStorage.getItem("sessionToken") || null;
             const visited_user = this.$route.params.visited_username
-            try{
-                const more_posts = await api.more_posts(sessionToken, page_token, visited_user)
-                this.profile_data.all_posts.push(...more_posts.data.post_list)
-                this.profile_data.post_cursor.next_token = more_posts.data.next_token
-            }catch(error){
-throw error
-     }
+            const more_posts = await api.more_posts(sessionToken, page_token, visited_user)
+            this.profile_data.all_posts.push(...more_posts.data.post_list)
+            this.profile_data.post_cursor.next_token = more_posts.data.next_token
+            
         },
         async clickFollow(){
-            try{
-                const token = localStorage.getItem("sessionToken")
-                const response = await api.follow_unfollow(token,this.whoami,this.others_name)
-                
-                switch (response) {
-                    case "REMOVED":
-                    this.profile_data.followers--
-                    break;
-                    case "ADDED":
-                    this.profile_data.followers++
-                    break
-                }
-                this.isFollowed=!this.isFollowed
-            }catch(error){
-                throw error
+            const token = localStorage.getItem("sessionToken")
+            const response = await api.follow_unfollow(token,this.whoami,this.others_name)
+            
+            switch (response) {
+                case "REMOVED":
+                this.profile_data.followers--
+                break;
+                case "ADDED":
+                this.profile_data.followers++
+                break
             }
+            this.isFollowed=!this.isFollowed
+            
         },
         openOverlay(type) {
             this.overlayType = type; // "followers" o "followed"

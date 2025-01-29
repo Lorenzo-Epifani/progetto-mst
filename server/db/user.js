@@ -6,10 +6,6 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
-  password: {
-    type: String,
-    required: true,
-  },
   email: {
     type: String,
     unique: true,
@@ -30,18 +26,18 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('find', function () {
-    this.select('-password');
+    this.select('-email');
   });
   
   UserSchema.pre('findOne', function () {
-    this.select('-password');
+    this.select('-email');
   });
   
   UserSchema.pre('findById', function () {
-    this.select('-password');
+    this.select('-email');
   });
   UserSchema.pre('aggregate', function () {
-    this.select('-password');
+    this.select('-email');
   });
 
 //EXTRA DATA 

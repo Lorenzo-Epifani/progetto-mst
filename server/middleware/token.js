@@ -2,9 +2,16 @@
 
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const crypto = require("crypto")
 
 
-
+function _hash_psw(psw){
+    SALT = "mysalt" // PUT IN PROTECTED SERVER
+    var shasum = crypto.createHash('sha1')
+    const pswstring = `${SALT}_${psw}` 
+    shasum.update(pswstring)
+    return shasum.digest('hex') 
+}
 function getSecret(){
     try {
         const data =  JSON.parse(fs.readFileSync(`${__dirname}/jwt.json`, 'utf8')); // Legge il file
@@ -54,7 +61,7 @@ function _to_token (input, expiresIn=28800){
 const content={
     
     get_access_token: _get_access_token,
-    
+    hash_psw:_hash_psw,
     from_token: _from_token,
     to_token: _to_token,
     protect: (req, res, next) => {

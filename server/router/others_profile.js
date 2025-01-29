@@ -73,7 +73,7 @@ router.get('/user_info/:visited_username', wrap_jwt, async function(req, res) {
 
     const caller_username = req.jwt_payload?.username ?? false
     const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
-    delete user_db_result._doc.password
+    //delete user_db_result._doc.password
     delete user_db_result._doc._id
 
     return res.status(200).json(user_db_result)

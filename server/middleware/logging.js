@@ -13,14 +13,6 @@ const log_request = (req, res, next) => {
     console.log(`#################### ${req_hash}\n\n`)
     console.log(req.headers)
     console.log(`\n\n`)
-    console.log("################### RESPONSE ####################")
-    console.log("##################### HASH ####################")
-    console.log(`#################### ${res_hash}`)
-    console.log(`#################### ${res_hash}`)
-    console.log(`#################### ${res_hash}\n\n`)
-    console.log(req.data)
-    console.log(`\n\n`)
-    console.log(`\n\n`)
     console.log(`\n\n`)
     next();
   };
