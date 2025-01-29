@@ -1,4 +1,3 @@
-var crypto = require('crypto')
 const mongoose = require('mongoose');
 const User = require('./user.js');
 const Follower = require('./follower.js');
@@ -11,19 +10,17 @@ const { faker } = require('@faker-js/faker');
 const jwt_utils = require('../middleware/token.js');
 
 const hash_psw = jwt_utils.hash_psw
-if (!process.env.MONGO_URI){
-    console.log("MONGO URI NOT FOUND!")
-}
-const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/sketch_db';
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => console.log('Database connected!'))
-.catch(err => console.error('Database connection error:', err));
 
-async function initializeDatabase() {
+
+
+async function initializeDatabase(mongoURI) {
     try {
+        mongoose.connect(mongoURI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }).then(() => console.log('Database connected!'))
+        .catch(err => console.error('Database connection error:', err));
         console.log('Database creation start!');
         
         // Crea 10 profili realistici
@@ -148,9 +145,13 @@ async function initializeDatabase() {
         await mongoose.connection.dropDatabase();
         console.error('Error initializing database:', err);
     } finally {
-        mongoose.connection.close();
+        await mongoose.connection.close();
     }
 }
 
-// Esegui lo script
-initializeDatabase();
+
+module.exports = initializeDatabase;
+if (require.main === module) {
+    const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/sketch_db';
+    initializeDatabase(mongoURI);
+}

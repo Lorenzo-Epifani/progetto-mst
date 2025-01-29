@@ -1,29 +1,22 @@
-# Usa un'immagine Node.js per la build
-FROM node:18-alpine AS build-stage
+FROM node:lts-alpine
 
-# Imposta la working directory
+# install simple http server for serving static content
+RUN npm install -g http-server
+
+# make the 'app' folder the current working directory
 WORKDIR /app
 
-# Copia i file package.json e package-lock.json
+# copy both 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
 
-# Installa le dipendenze
+# install project dependencies
 RUN npm install
 
-# Copia il resto dei file
+# copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
 
-# Compila il progetto Vue.js
+# build app for production with minification
 RUN npm run build
 
-# Usa un'immagine Nginx per servire il frontend
-FROM nginx:stable-alpine AS production-stage
-
-# Copia i file generati dalla build Vue
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-
-# Esponi la porta 80
-EXPOSE 80
-
-# Avvia Nginx
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 8080
+CMD [ "npm","run","serve"]

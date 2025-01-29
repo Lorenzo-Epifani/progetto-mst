@@ -1,5 +1,3 @@
-const chalk = require('chalk'); // Usa la libreria 'chalk' per i colori
-const fs = require('fs');
 const crypto = require('crypto');
 
 const log_request = (req, res, next) => {
