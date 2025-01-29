@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./server
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/sketch_db
+    depends_on:
+      - mongo
+    volumes:
+      - ./server/db/init.js:/docker-entrypoint-initdb.d/init.js:ro
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+
+  mongo:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

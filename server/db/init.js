@@ -11,8 +11,12 @@ const { faker } = require('@faker-js/faker');
 const jwt_utils = require('../middleware/token.js');
 
 const hash_psw = jwt_utils.hash_psw
+if (!process.env.MONGO_URI){
+    console.log("MONGO URI NOT FOUND!")
+}
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/sketch_db';
 
-mongoose.connect('mongodb://localhost:27017/sketch_db', {
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => console.log('Database connected!'))

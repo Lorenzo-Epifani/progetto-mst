@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
-const mongoURI = 'mongodb://localhost:27017/sketch_db'; // Cambia con il tuo URI MongoDB
-
+if (!process.env.MONGO_URI){
+    console.log("MONGO URI NOT FOUND!")
+}
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/sketch_db';
 const connectDB = async () => {
   try {
     await mongoose.connect(mongoURI, {
