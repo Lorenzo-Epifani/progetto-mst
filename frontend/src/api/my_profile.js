@@ -26,6 +26,7 @@ export async function init_me (session_token) {
         my_name:mydata.data.username,
     }
     return response_data
+
   }
 
   export async function more_posts (session_token,page_token) {
@@ -38,7 +39,6 @@ export async function init_me (session_token) {
     
     const list_post = await instance.get('/list_post', info);    
     //const profile_info = await instance.get('/profile_info', info);    
-
     return list_post
   }
 

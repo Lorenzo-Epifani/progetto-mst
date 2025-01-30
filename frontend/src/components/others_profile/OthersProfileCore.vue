@@ -38,7 +38,7 @@
     
     <!-- Anteprima Post -->
     <div class="post-grid">
-        <div v-for="(post, index) in this.profile_data.all_posts" :key="index" class="post-preview">
+        <div v-for="(post, index) in this.profile_data.all_posts" :key="index" class="post-preview" @click="redirectToPost(post._id)">
             <img :src="post.img" alt="Post Image" />
         </div>
     </div>
@@ -54,6 +54,50 @@
 
 
 <style scoped>
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.post-preview {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.post-preview:hover {
+    transform: scale(1.05);
+}
+
+.post-preview::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: scale(1);
+}
+
+.post-preview:hover::after {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
 .profile-page {
     max-width: 800px;
     margin: 0 auto;
@@ -202,6 +246,9 @@ export default {
         };
     },
     methods:{
+        redirectToPost(postId) {
+            this.$router.push({ path: `/post/${postId}` });
+        },
         async loadMorePosts(){
             const page_token = this.profile_data.post_cursor.next_token
             const sessionToken = localStorage.getItem("sessionToken") || null;

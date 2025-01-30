@@ -6,6 +6,7 @@ import login from '@/components/login/LoginCore.vue';
 import my_profile from '@/components/my_profile/MyProfileCore.vue';
 import others_profile from '@/components/others_profile/OthersProfileCore.vue';
 import home from '@/components/home/HomeCore.vue';
+import post from '@/components/post/PostCore.vue';
 
 Vue.use(Router);
 
@@ -51,6 +52,11 @@ export default new Router({
             path: '/home',
             name: 'home',
             component: home,
+        },
+        {
+            path: '/post/:post_id',
+            name: 'post',
+            component: post,
         },
         { path: '*', redirect: '/login' },
     ],

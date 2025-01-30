@@ -13,13 +13,13 @@
                         <strong>{{ this.my_profile_data.post_count }}</strong>
                         <span>Post</span>
                     </div>
-                    <div class="stat-item">
-                        <strong>{{ this.my_profile_data.followers }}</strong>
-                        <span>Followers</span>
-                    </div>
-                    <div class="stat-item">
-                        <strong>{{ this.my_profile_data.followed }}</strong>
-                        <span>Following</span>
+                    <div class="stat-item" @click="openOverlay('followers')"> 
+                    <strong>{{ this.my_profile_data.followers }}</strong>
+                    <span>Followers</span>
+                </div>
+                <div class="stat-item" @click="openOverlay('following')"> 
+                    <strong>{{ this.my_profile_data.followed }}</strong>
+                    <span>Following</span>
                     </div>
                 </div>
             </div>
@@ -27,10 +27,11 @@
         
         <!-- Anteprima Post -->
         <div class="post-grid">
-            <div v-for="(post, index) in this.my_profile_data.all_posts" :key="index" class="post-preview">
+            <div v-for="(post, index) in this.my_profile_data.all_posts" :key="index" class="post-preview" @click="redirectToPost(post._id)">
                 <img :src="post.img" alt="Post Image" />
             </div>
         </div>
+    <FollowOverlay v-if="showFollowOverlay"  :isOpen="showFollowOverlay" :type="overlayType" @close="closeOverlay" :username="my_profile_data.my_name"/>
         
         <!-- Bottone per caricare altri post -->
         <div v-if="my_profile_data.post_cursor.next_token" class="load-more">
@@ -120,14 +121,64 @@
 .load-more button:hover {
     background-color: #0056b3;
 }
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.post-preview {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.post-preview:hover {
+    transform: scale(1.05);
+}
+
+.post-preview::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: scale(1);
+}
+
+.post-preview:hover::after {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.post-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
 </style>
 
 <script>
 import * as api from "@/api/my_profile.js";
+import FollowOverlay from "@/components/others_profile/overlay/FollowOverlay.vue";
 
 export default {
+    components: {
+        FollowOverlay // Registra il componente per l'overlay
+    },
     data() {
         return {
+            showFollowOverlay:false,
+            overlayType: null, // Tipo di overlay: "followers" o "followed"
             my_profile_data:{
                 all_posts:[],
                 followers:null,
@@ -144,13 +195,24 @@ export default {
         };
     },
     methods:{
+        redirectToPost(postId) {
+            this.$router.push({ path: `/post/${postId}` });
+        },
         async loadMorePosts(){
             const page_token = this.my_profile_data.post_cursor.next_token
             const more_posts = await api.more_posts(localStorage.getItem("sessionToken"), page_token)
             //console.log(more_posts)
             this.my_profile_data.all_posts.push(...more_posts.data.post_list)
             this.my_profile_data.post_cursor.next_token = more_posts.data.next_token
-        }
+        },
+        openOverlay(type) {
+            this.overlayType = type; // "followers" o "followed"
+            this.showFollowOverlay = true;
+        },
+        closeOverlay() {
+            this.showFollowOverlay = false;
+            this.overlayType = null;
+        },
     },
     async created() {
         const sessionToken = localStorage.getItem("sessionToken");
@@ -164,6 +226,7 @@ export default {
         // Token presente, procedi con il caricamento dei dati
         this.my_profile_data = await api.init_me(sessionToken);
         this.my_profile_data["all_posts"]=this.my_profile_data.post_cursor.post_list
+        console.log(this.my_profile_data["all_posts"])
     },
 };
 </script>
