@@ -51,10 +51,10 @@
       };
     },
     methods: {
-      toggleLike() {
+      async toggleLike() {
         this.post_data.liked = !this.post_data.liked;
         this.post_data.likes_count += this.post_data.liked ? 1 : -1;
-        this.ClickLike();
+        await this.ClickLike();
       },
       focusCommentInput() {
         this.$refs.commentInput.focus();
@@ -65,14 +65,14 @@
           this.newComment = "";
         }
       },
-      ClickLike() {
+      async ClickLike() {
         console.log("Like clicked!");
+        console.log(await api.ClickLike(localStorage.getItem("sessionToken"),this.$route.params.post_id))
         //TODO, SCRIVI NELLA COLLECTION LIKE
       }
     },
     async created(){
       this.post_data = await api.init_post(localStorage.getItem("sessionToken"), this.$route.params.post_id);
-      console.log(this.post_data);
     }
   };
   </script>

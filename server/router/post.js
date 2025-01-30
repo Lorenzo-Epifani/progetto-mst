@@ -58,105 +58,33 @@ router.get('/init', protect, async function(req, res) {
     
 }
 );
-//VERIFY TOKEN
-router.get('/user_info/:visited_username', wrap_jwt, async function(req, res) {
-    const visited_username = req.params.visited_username
 
+router.get('/click_like/', protect, async function(req, res) {
+    try{
+    const visited_username = req.params.visited_username
+    const post_id = req.headers['post_id']
     const caller_username = req.jwt_payload?.username ?? false
-    const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
-    //delete user_db_result._doc.password
-    delete user_db_result._doc._id
 
-    return res.status(200).json(user_db_result)
-    
-}
-);
-//VERIFY TOKEN
-router.get('/count_follow/:visited_username', wrap_jwt, async function(req, res) {
-    const visited_username = req.params.visited_username
-
-    try{
-        const caller_username = req.jwt_payload?.username ?? false;
-        const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
-        const user_id_str = user_db_result._doc._id.toString()    
-        const followers_db_result = await Follower.countDocuments({ unique_pair: { $regex: `${user_id_str}$` } })
-        const followed_db_result = await Follower.countDocuments({ unique_pair: { $regex: `^${user_id_str}` } })
-        return res.status(200).json({"followers":followers_db_result,"followed":followed_db_result})
-    }catch(error){
-        return res.status(500).json(error.message);
-    }
-    
-}
-);
-
-router.get('/count_post/:visited_username', wrap_jwt, async function(req, res) {
-    const visited_username = req.params.visited_username
-
-    try{
-        const caller_username = req.jwt_payload?.username ?? false;
-        const user_db_result = await User.findOne({ username: visited_username});//salting hash, implementa
-        const user_id = user_db_result._doc._id    
-        const post_count_deb_result = await Post.countDocuments({ owner__user_key: user_id })
-
-        return res.status(200).json(post_count_deb_result)
-    }catch(error){
-        return res.status(500).json(error.message);
-    }
-    
-}
-);
+    const user_db_result = await User.findOne({username: caller_username})
+    const caller_id = user_db_result._doc._id
 
 
-
-router.get('/click_follow_to/:visited_username/:check', protect, async function(req, res) {
-    const visited_username = req.params.visited_username
-    const caller_username = req.jwt_payload?.username ?? false;
-    const just_check = req.params.check
-    var response = null
-    try{
-        const visited_id = (await User.findOne({ username: visited_username}))._doc._id.toString()
-        const caller_id = (await User.findOne({ username: caller_username}))._doc._id.toString()
-        const unique_pair = `${caller_id}_${visited_id}`
-
-        const exist = await Follower.findOne({ unique_pair: unique_pair });
-        response = Boolean(exist)
-        if (just_check==="check"){
-            return res.status(200).json(response)
-        }
-
-        if (exist){
-            await Follower.deleteOne({ unique_pair: unique_pair });
-            response="REMOVED"
-        } else {
-            const newFollower = new Follower({
-                unique_pair: unique_pair,
-                follower__user_key: caller_id,
-                followed__user_key: visited_id,
-              });
-              //const session = await mongoose.startSession();
-              //await session.commitTransaction();
-              //await newFollower.save({ session });
-              await newFollower.save();
-              response="ADDED"
-        }
-        return res.status(200).json(response)
-    }catch(error){
-        return res.status(500).json(error.message);
-    }
-})
-
-router.get('/exist/:visited_username/', async function(req, res) {
-    const visited_username = req.params.visited_username
-    try{
-    const user_exist = await User.findOne({ username: visited_username});//salting hash, implementa
-    const result = Boolean(user_exist)
+    const existingLike = Boolean(await PostLike.findOne({ from__user_key: caller_id, to__post_key: post_id }))
+    var result = null
+    if (existingLike) {
+        await PostLike.findOneAndDelete({ from__user_key: caller_id, to__post_key: post_id });
+        result="unlike"
+    } else {
+        // Se non esiste, lo creiamo
+        await PostLike.create({ from__user_key: caller_id, to__post_key: post_id });
+        result="like"
+    }    
     return res.status(200).json(result)
 
     }catch(error){
         return res.status(500).json(error.message);
     }
 })
-
 
 
 module.exports = router;
