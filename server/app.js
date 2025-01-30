@@ -14,6 +14,7 @@ const homeRoutes = require('./router/home.js');
 const myProfileRoutes = require('./router/my_profile.js'); 
 const othersProfileRoutes = require('./router/others_profile.js'); 
 const sharedRoutes = require('./router/shared.js'); 
+const postRoutes = require('./router/post.js'); 
 
 
 app.use(express.json());
@@ -36,6 +37,7 @@ app.use('/others_profile', othersProfileRoutes);
 app.use('/shared', sharedRoutes);
 app.use('/auth', loginRoutes);
 app.use('/home', homeRoutes);
+app.use('/post', postRoutes);
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
