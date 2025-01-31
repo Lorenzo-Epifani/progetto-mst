@@ -19,9 +19,11 @@ const log_request = (req, res, next) => {
 const content={
     
     
-    log_request: log_request
+    log_request: log_request,
     
-    
+    asyncHandler : (fn) => (req, res, next) => {
+        Promise.resolve(fn(req, res, next)).catch(next);
+    }
 }
 
 module.exports = content;

@@ -11,13 +11,23 @@ var Post = require('../db/post');
 
 const protect = token_utils.protect
 const paginate = token_utils.paginate
+const wrap_errors = require('../middleware/logging.js').asyncHandler;
 
 
 router.use(protect); // MIDDLEWARE TO ALL API
 
+async function isValidImage(url) {
+    try {
+        const response = await fetch(url, { method: "HEAD" }); // Controlla solo gli headers
+        const contentType = response.headers.get("content-type");
+        return contentType && contentType.startsWith("image");
+    } catch (error) {
+        return false; // Se la richiesta fallisce, l'URL non è valido
+    }
+}
 
 //VERIFY TOKEN
-router.get('/list_post', paginate, async function(req, res) {
+router.get('/list_post', paginate, wrap_errors(async function(req, res) {
     const PAGE_L=5 // Should be in a config
     const username = req.jwt_payload.username
     const user_db_result = await User.findOne({ username: username});//salting hash, implementa
@@ -32,8 +42,9 @@ router.get('/list_post', paginate, async function(req, res) {
     
     
     const post_list = await Post.find({ owner__user_key: user_id })
+    .sort({ createdAt: -1 }) 
     .skip(req_skip) 
-    .limit(req_limit) 
+    .limit(req_limit)
     .exec();
     post_list.map(el=>{
         delete el._doc.owner__user_key
@@ -54,9 +65,9 @@ router.get('/list_post', paginate, async function(req, res) {
     return res.status(200).json(response)
     
 }
-);
+));
 //VERIFY TOKEN
-router.get('/user_info', async function(req, res) {
+router.get('/user_info', wrap_errors(async function(req, res) {
     const username = req.jwt_payload.username
     const user_db_result = await User.findOne({ username: username});//salting hash, implementa
     delete user_db_result._doc._id
@@ -64,9 +75,9 @@ router.get('/user_info', async function(req, res) {
     return res.status(200).json(user_db_result)
     
 }
-);
+));
 //VERIFY TOKEN
-router.get('/count_follow', async function(req, res) {
+router.get('/count_follow', wrap_errors(async function(req, res) {
     try{
         const username = req.jwt_payload.username
         const user_db_result = await User.findOne({ username: username});//salting hash, implementa
@@ -79,21 +90,41 @@ router.get('/count_follow', async function(req, res) {
     }
     
 }
-);
+));
 
-router.get('/count_post', async function(req, res) {
-    try{
+router.get('/count_post', wrap_errors(async function(req, res) {
         const username = req.jwt_payload.username
         const user_db_result = await User.findOne({ username: username});//salting hash, implementa
         const user_id = user_db_result._doc._id    
         const post_count_deb_result = await Post.countDocuments({ owner__user_key: user_id })
 
         return res.status(200).json(post_count_deb_result)
-    }catch(error){
-        return res.status(500).json(error.message);
-    }
     
 }
+)
+);
+
+router.get('/new_post', wrap_errors(async function(req, res) {
+        const username = req.jwt_payload.username
+        const post_data = JSON.parse(req.headers['post_data'])
+        if (!post_data['img'] || !(await isValidImage(post_data['img'])) || !post_data['caption']){
+            return res.sendStatus(400)
+        }
+
+        const user_db_result = await User.findOne({ username: username});//salting hash, implementa
+        const user_id = user_db_result._doc._id 
+        const new_post_document = {
+            owner__user_key:user_id,
+            img:post_data['img'],
+            caption:post_data['caption']
+        }
+        
+        const post_count_deb_result = await Post.insertMany([new_post_document])
+
+        return res.status(200).json(post_count_deb_result)
+    
+}
+)
 );
 
 

@@ -38,6 +38,15 @@ app.use('/shared', sharedRoutes);
 app.use('/auth', loginRoutes);
 app.use('/home', homeRoutes);
 app.use('/post', postRoutes);
+
+
+
+app.use((err, req, res, next) => {
+    console.log("SERVER ERROR");
+    console.error(err.stack);
+    res.sendStatus(500);
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
