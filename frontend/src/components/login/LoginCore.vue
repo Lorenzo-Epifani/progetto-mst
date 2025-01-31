@@ -68,8 +68,9 @@ export default {
             // Salva il token nel localStorage o gestiscilo come richiesto
             localStorage.setItem("sessionToken", token);
             
-            window.location.reload()
             this.$router.push("/profile"); 
+            window.location.reload()
+            return
         },
     },
 };

@@ -42,6 +42,19 @@ export async function init_me (session_token) {
     return list_post
   }
 
+  export async function new_post (session_token, post_data) {
+    const info={
+        headers: {
+            'authorization': `Bearer ${session_token}`,
+            'post_data':post_data
+        }
+    }
+    
+    const new_post_response = await instance.get('/new_post', info);    
+    //const profile_info = await instance.get('/profile_info', info);    
+    return new_post_response
+  }
+
 
 
 

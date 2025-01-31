@@ -77,6 +77,7 @@ export default {
             if (this.$route.params.visited_username !== username) {
                 this.$router.push(`/profile/${username}`);
                 window.location.reload()
+                return
                 
             }
         },

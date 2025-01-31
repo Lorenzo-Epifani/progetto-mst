@@ -76,8 +76,9 @@ export default {
         },
         deleteToken() {
             localStorage.removeItem("sessionToken");
-            window.location.reload();
             this.$router.push("/login");
+            window.location.reload();
+            return
         },
         toggleSearchBox() {
             this.$refs.searchBox.openSearch();

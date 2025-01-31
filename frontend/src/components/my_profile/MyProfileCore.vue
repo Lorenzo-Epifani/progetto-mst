@@ -7,37 +7,48 @@
             </div>
             <div class="my_profile-info">
                 <h2>{{this.my_profile_data.my_name }}</h2>
-                <p class="caption">{{ this.my_profile_data.my_caption }}</p>
+                <div class="caption-container">
+                    
+                    <p class="caption">{{ this.my_profile_data.my_caption }}</p>
+                </div>
                 <div class="stats">
                     <div class="stat-item">
                         <strong>{{ this.my_profile_data.post_count }}</strong>
                         <span>Post</span>
                     </div>
                     <div class="stat-item" @click="openOverlay('followers')"> 
-                    <strong>{{ this.my_profile_data.followers }}</strong>
-                    <span>Followers</span>
-                </div>
-                <div class="stat-item" @click="openOverlay('following')"> 
-                    <strong>{{ this.my_profile_data.followed }}</strong>
-                    <span>Following</span>
+                        <strong>{{ this.my_profile_data.followers }}</strong>
+                        <span>Followers</span>
+                    </div>
+                    <div class="stat-item" @click="openOverlay('following')"> 
+                        <strong>{{ this.my_profile_data.followed }}</strong>
+                        <span>Following</span>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Anteprima Post -->
-        <div class="post-grid">
-            <div v-for="(post, index) in this.my_profile_data.all_posts" :key="index" class="post-preview" @click="redirectToPost(post._id)">
-                <img :src="post.img" alt="Post Image" />
-            </div>
-        </div>
-    <FollowOverlay v-if="showFollowOverlay"  :isOpen="showFollowOverlay" :type="overlayType" @close="closeOverlay" :username="my_profile_data.my_name"/>
-        
-        <!-- Bottone per caricare altri post -->
-        <div v-if="my_profile_data.post_cursor.next_token" class="load-more">
-            <button @click="loadMorePosts">Load more</button>
+            <md-button
+            class="md-icon-button"
+            @click="newPost"
+            md-icon="photo_camera"
+            >
+            <md-icon>photo_camera</md-icon>
+        </md-button>
+    </div>
+    
+    <!-- Anteprima Post -->
+    <div class="post-grid">
+        <div v-for="(post, index) in this.my_profile_data.all_posts" :key="index" class="post-preview" @click="redirectToPost(post._id)">
+            <img :src="post.img" alt="Post Image" />
         </div>
     </div>
+    <FollowOverlay v-if="showFollowOverlay"  :isOpen="showFollowOverlay" :type="overlayType" @close="closeFollowerOverlay" :username="my_profile_data.my_name"/>
+    <NewPostOverlay v-if="showNewPostOverlay"  :isOpen="showNewPostOverlay" @close="closeNewPostOverlay"/>
+    
+    <!-- Bottone per caricare altri post -->
+    <div v-if="my_profile_data.post_cursor.next_token" class="load-more">
+        <button @click="loadMorePosts">Load more</button>
+    </div>
+</div>
 </template>
 
 <style scoped>
@@ -95,10 +106,20 @@
     margin-bottom: 20px;
 }
 
+.post-preview {
+    position: relative;
+    width: 100%; /* Occupa tutto lo spazio disponibile nella griglia */
+    aspect-ratio: 1 / 1; /* Forza un rapporto di aspetto 1:1 (quadrato) */
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
 .post-preview img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* Assicura che l'immagine riempia il contenitore senza deformarsi */
     border-radius: 8px;
 }
 
@@ -128,13 +149,6 @@
     margin-bottom: 20px;
 }
 
-.post-preview {
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
 
 .post-preview:hover {
     transform: scale(1.05);
@@ -165,19 +179,42 @@
     object-fit: cover;
     border-radius: 8px;
 }
+
+.caption-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.md-icon-button {
+    
+    scale: 2.6;
+    margin: auto ;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.md-icon-button:hover {
+    transform: scale(1.1);
+}
+
+
 </style>
 
 <script>
 import * as api from "@/api/my_profile.js";
-import FollowOverlay from "@/components/others_profile/overlay/FollowOverlay.vue";
+import FollowOverlay from "@/components/my_profile/overlay/FollowOverlay.vue";
+import NewPostOverlay from "@/components/my_profile/overlay/NewPostOverlay.vue";
 
 export default {
     components: {
-        FollowOverlay // Registra il componente per l'overlay
+        FollowOverlay,
+        NewPostOverlay
     },
     data() {
         return {
             showFollowOverlay:false,
+            showNewPostOverlay:false,
             overlayType: null, // Tipo di overlay: "followers" o "followed"
             my_profile_data:{
                 all_posts:[],
@@ -195,8 +232,11 @@ export default {
         };
     },
     methods:{
+        newPost(){
+            this.showNewPostOverlay = true;
+        },
         redirectToPost(postId) {
-            this.$router.push({ path: `/post/${postId}` });
+            return this.$router.push({ path: `/post/${postId}` });
         },
         async loadMorePosts(){
             const page_token = this.my_profile_data.post_cursor.next_token
@@ -209,10 +249,23 @@ export default {
             this.overlayType = type; // "followers" o "followed"
             this.showFollowOverlay = true;
         },
-        closeOverlay() {
+        closeFollowerOverlay() {
             this.showFollowOverlay = false;
             this.overlayType = null;
         },
+        closeNewPostOverlay() {
+            this.showNewPostOverlay = false;
+            this.overlayType = null;
+            this.refreshProfileData(); // Forza l'aggiornamento del componente
+
+        },
+        async refreshProfileData() {
+    const sessionToken = localStorage.getItem("sessionToken");
+    if (sessionToken) {
+        this.my_profile_data = await api.init_me(sessionToken);
+        this.my_profile_data["all_posts"] = this.my_profile_data.post_cursor.post_list;
+    }
+}
     },
     async created() {
         const sessionToken = localStorage.getItem("sessionToken");
@@ -226,7 +279,6 @@ export default {
         // Token presente, procedi con il caricamento dei dati
         this.my_profile_data = await api.init_me(sessionToken);
         this.my_profile_data["all_posts"]=this.my_profile_data.post_cursor.post_list
-        console.log(this.my_profile_data["all_posts"])
     },
 };
 </script>

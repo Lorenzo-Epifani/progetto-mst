@@ -3,7 +3,7 @@
 
     <div class="post-container">
       <!-- Header del post: immagine profilo e nome utente -->
-      <div class="post-header">
+      <div class="post-header" @click="clickOwner">
         <img :src="post_data.owner_img" alt="User Profile" class="profile-image" />
         <span class="owner_name">{{ post_data.owner_name }}</span>
       </div>
@@ -54,7 +54,7 @@
       async toggleLike() {
         this.post_data.liked = !this.post_data.liked;
         this.post_data.likes_count += this.post_data.liked ? 1 : -1;
-        await this.ClickLike();
+        await this.clickLike();
       },
       focusCommentInput() {
         this.$refs.commentInput.focus();
@@ -65,10 +65,13 @@
           this.newComment = "";
         }
       },
-      async ClickLike() {
+      async clickLike() {
         console.log("Like clicked!");
-        console.log(await api.ClickLike(localStorage.getItem("sessionToken"),this.$route.params.post_id))
+        console.log(await api.click_like(localStorage.getItem("sessionToken"),this.$route.params.post_id))
         //TODO, SCRIVI NELLA COLLECTION LIKE
+      },
+      async clickOwner(){
+        this.$router.push(`/profile/${this.post_data.owner_name}`); 
       }
     },
     async created(){

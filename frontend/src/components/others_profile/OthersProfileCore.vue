@@ -63,10 +63,19 @@
 
 .post-preview {
     position: relative;
+    width: 100%; /* Occupa tutto lo spazio disponibile nella griglia */
+    aspect-ratio: 1 / 1; /* Forza un rapporto di aspetto 1:1 (quadrato) */
     overflow: hidden;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.3s ease;
+}
+
+.post-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Assicura che l'immagine riempia il contenitore senza deformarsi */
+    border-radius: 8px;
 }
 
 .post-preview:hover {
@@ -150,13 +159,6 @@
     grid-template-columns: repeat(3, 1fr); /* 3 post per riga */
     gap: 10px;
     margin-bottom: 20px;
-}
-
-.post-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
 }
 
 .load-more {
@@ -247,7 +249,7 @@ export default {
     },
     methods:{
         redirectToPost(postId) {
-            this.$router.push({ path: `/post/${postId}` });
+            return this.$router.push({ path: `/post/${postId}` });
         },
         async loadMorePosts(){
             const page_token = this.profile_data.post_cursor.next_token
@@ -288,7 +290,7 @@ export default {
         if(sessionToken){// OPERATION TO DO ONLY IF LOGGED
             this.whoami = (await shared_api.whoami(sessionToken)).data
             if (this.whoami==this.others_name){
-                this.$router.push({ name: "my_profile" }); 
+                return  this.$router.push({ name: "my_profile" }); 
             }
             this.logged=true
             this.isFollowed = await api.follow_check(sessionToken,this.whoami,this.others_name)

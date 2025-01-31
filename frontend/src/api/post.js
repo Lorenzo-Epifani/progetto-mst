@@ -15,7 +15,7 @@ export async function init_post (session_token,post_id) {
     return response.data
   }
 
-export async function ClickLike(session_token, post_id){
+export async function click_like(session_token, post_id){
         const info={
             headers: {
                 'authorization': `Bearer ${session_token}`,

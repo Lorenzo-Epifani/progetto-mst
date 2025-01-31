@@ -62,6 +62,7 @@ export default {
             if (this.$route.path !== targetRoute) {
                 this.$router.push(targetRoute); // Naviga solo se è una rotta diversa
                 window.location.reload()
+                return
                 
             }         
         }
