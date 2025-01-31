@@ -13,11 +13,12 @@ const ObjectId = require('bson').ObjectId;
 const wrap_jwt = token_utils.wrap_jwt
 const protect = token_utils.protect
 const paginate = token_utils.paginate
+const wrap_errors = require('../middleware/logging.js').asyncHandler;
 
 
 
 
-router.get('/init', protect, async function(req, res) {
+router.get('/init', protect, wrap_errors(async function(req, res) {
     const post_id = req.headers['post_id']
     try{
     if (!post_id || !(new ObjectId(post_id).toString() === post_id)){
@@ -57,10 +58,10 @@ router.get('/init', protect, async function(req, res) {
     return res.status(200).json(response)
     
 }
+)
 );
 
-router.get('/click_like/', protect, async function(req, res) {
-    try{
+router.get('/click_like/', protect, wrap_errors(async function(req, res) {
     const visited_username = req.params.visited_username
     const post_id = req.headers['post_id']
     const caller_username = req.jwt_payload?.username ?? false
@@ -81,10 +82,9 @@ router.get('/click_like/', protect, async function(req, res) {
     }    
     return res.status(200).json(result)
 
-    }catch(error){
-        return res.status(500).json(error.message);
-    }
-})
+}
+)
+)
 
 
 module.exports = router;
