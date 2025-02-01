@@ -127,6 +127,41 @@ router.get('/new_post', wrap_errors(async function(req, res) {
 )
 );
 
+router.get('/change_propic', wrap_errors(async function(req, res) {
+    const username = req.jwt_payload.username
+    const img_url = JSON.parse(req.headers['img_url'])
+    if (!img_url || !(await isValidImage(img_url))){
+        return res.sendStatus(400)
+    }
+
+    const update_image_response = await User.updateOne(
+        { username: username }, 
+        { $set: { img: img_url } }
+    );
+
+    return res.status(200).json(update_image_response)
+
+}
+)
+);
+
+router.get('/change_caption', wrap_errors(async function(req, res) {
+    const username = req.jwt_payload.username
+    const caption = req.headers['caption']
+    if (!caption){
+        return res.sendStatus(400)
+    }
+
+    const update_caption_response = await User.updateOne(
+        { username: username }, 
+        { $set: { caption: caption } }
+    );
+
+    return res.status(200).json(update_caption_response)
+
+}
+)
+);
 
 //VERIFY TOKEN
 router.get('/get_myprofile_data', function(req, res) {
